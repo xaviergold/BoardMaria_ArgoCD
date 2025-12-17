@@ -1,0 +1,8 @@
+{{- if .Values.gatewayApi.gatewayClass.create }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: {{ .Values.gatewayApi.gatewayClass.name | quote }}
+spec:
+  controllerName: {{ .Values.gatewayApi.gatewayClass.controllerName | quote }}
+{{- end }}

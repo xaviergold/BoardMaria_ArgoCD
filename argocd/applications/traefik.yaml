@@ -1,0 +1,71 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: traefik
+  namespace: argocd
+spec:
+  project: default
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: traefik
+
+  source:
+    repoURL: https://traefik.github.io/charts
+    chart: traefik
+    targetRevision: 33.0.0
+    helm:
+      releaseName: traefik
+      values: |
+        providers:
+          kubernetesGateway:
+            enabled: true
+
+        ports:
+          web:
+            port: 8000
+            exposedPort: 80
+            expose:
+              default: true
+
+          websecure:
+            port: 8443
+            exposedPort: 443
+            expose:
+              default: true
+            tls:
+              enabled: true
+
+        service:
+          type: LoadBalancer
+
+        experimental:
+          kubernetesGateway:
+            enabled: true
+
+        gateway:
+          enabled: true
+          name: traefik-gateway
+
+          listeners:
+            web:
+              port: 8000
+              protocol: HTTP
+              namespacePolicy: All
+
+            websecure:
+              port: 8443
+              protocol: HTTPS
+              namespacePolicy: All
+              mode: Terminate
+              certificateRefs:
+                - kind: Secret
+                  name: tlssecret
+                  group: ""
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

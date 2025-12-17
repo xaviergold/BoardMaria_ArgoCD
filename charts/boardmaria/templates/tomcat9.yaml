@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tomcat9-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tomcat9
+  template:
+    metadata:
+      labels:
+        app: tomcat9
+    spec:
+      {{- if and .Values.tomcat9.persistence .Values.tomcat9.persistence.enabled }}
+      volumes:
+        - name: repo-volume
+          persistentVolumeClaim:
+            claimName: {{ .Values.tomcat9.persistence.claimName }}
+      {{- end }}
+      containers:
+        - name: tomcat9
+          image: {{ .Values.tomcat9.image }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          {{- if and .Values.tomcat9.persistence .Values.tomcat9.persistence.enabled }}
+          volumeMounts:
+            - mountPath: /var/opt/Repository
+              name: repo-volume
+          {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tomcat9-service
+spec:
+  selector:
+    app: tomcat9
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+{{- if and .Values.tomcat9.persistence .Values.tomcat9.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.tomcat9.persistence.claimName }}
+  annotations:
+    "helm.sh/resource-policy": keep
+  labels:
+    app: tomcat9
+spec:
+  {{- if .Values.tomcat9.persistence.storageClassName }}
+  storageClassName: {{ .Values.tomcat9.persistence.storageClassName | quote }}
+  {{- end }}
+  accessModes:
+  {{- range .Values.tomcat9.persistence.accessModes }}
+    - {{ . }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.tomcat9.persistence.size | quote }}
+{{- end }}

@@ -1,0 +1,28 @@
+{{- if .Values.gatewayApi.gateway.create }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ .Values.gatewayApi.gateway.name | quote }}
+  namespace: {{ .Values.gatewayApi.gateway.namespace | quote }}
+spec:
+  gatewayClassName: {{ .Values.gatewayApi.gatewayClass.name | quote }}
+  listeners:
+    - name: {{ .Values.gatewayApi.gateway.listeners.web.name | quote }}
+      port: {{ .Values.gatewayApi.gateway.listeners.web.port }}
+      protocol: {{ .Values.gatewayApi.gateway.listeners.web.protocol | quote }}
+      allowedRoutes:
+        namespaces:
+          from: {{ .Values.gatewayApi.gateway.allowedRoutes.namespacesFrom | quote }}
+
+    - name: {{ .Values.gatewayApi.gateway.listeners.websecure.name | quote }}
+      port: {{ .Values.gatewayApi.gateway.listeners.websecure.port }}
+      protocol: {{ .Values.gatewayApi.gateway.listeners.websecure.protocol | quote }}
+      tls:
+        mode: {{ .Values.gatewayApi.gateway.listeners.websecure.tls.mode | quote }}
+        certificateRefs:
+          - kind: Secret
+            name: {{ .Values.gatewayApi.gateway.listeners.websecure.tls.secretName | quote }}
+      allowedRoutes:
+        namespaces:
+          from: {{ .Values.gatewayApi.gateway.allowedRoutes.namespacesFrom | quote }}
+{{- end }}

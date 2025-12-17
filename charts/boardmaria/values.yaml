@@ -1,0 +1,56 @@
+mariadb:
+  image: redleon1/mariadb_boardmaria_traefik:1.0
+  persistence:
+    enabled: true
+    claimName: mariadb-data
+    size: 1Gi
+    accessModes:
+      - ReadWriteOnce
+    storageClassName: "local-path"
+tomcat9:
+  image: redleon1/tomcat9_boardmaria_traefik:1.0
+  persistence:
+    enabled: true
+    claimName: tomcat9-repo
+    size: 1Gi
+    accessModes:
+      - ReadWriteOnce
+    storageClassName: "local-path"
+apache2:
+  image: redleon1/apache2_boardmaria_traefik:1.0
+  imagePullSecret: docker-secret
+
+# Gateway API 
+gatewayApi:
+  gatewayClass:
+    create: false
+    name: traefik
+    controllerName: traefik.io/gateway-controller
+
+  gateway:
+    create: false
+    namespace: traefik
+    name: traefik-gateway
+    listeners:
+      web:
+        name: web
+        port: 80
+        protocol: HTTP
+      websecure:
+        name: websecure
+        port: 443
+        protocol: HTTPS
+        tls:
+          mode: Terminate
+          secretName: tlssecret
+    allowedRoutes:
+      namespacesFrom: All
+
+# HTTPRoute
+gateway:
+  parentGateway:
+    namespace: traefik
+    name: traefik-gateway
+    sectionName: websecure
+  host: www.boardmaria.com
+  pathPrefix: /

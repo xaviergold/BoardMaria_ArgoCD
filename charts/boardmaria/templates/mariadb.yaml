@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: mariadb-deployment
 spec:
-  replicas: 1
+  replicas: {{ .Values.mariadb.replicaCount }}
   selector:
     matchLabels:
       app: mariadb

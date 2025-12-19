@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: tomcat9-deployment
 spec:
-  replicas: 1
+  replicas: {{ .Values.tomcat9.replicaCount }}
   selector:
     matchLabels:
       app: tomcat9

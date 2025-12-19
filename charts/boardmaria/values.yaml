@@ -1,4 +1,5 @@
 mariadb:
+  replicaCount: 1
   image: redleon1/mariadb_boardmaria_traefik:1.0
   persistence:
     enabled: true
@@ -8,6 +9,7 @@ mariadb:
       - ReadWriteOnce
     storageClassName: "local-path"
 tomcat9:
+  replicaCount: 1
   image: redleon1/tomcat9_boardmaria_traefik:1.0
   persistence:
     enabled: true
@@ -17,6 +19,7 @@ tomcat9:
       - ReadWriteOnce
     storageClassName: "local-path"
 apache2:
+  replicaCount: 1
   image: redleon1/apache2_boardmaria_traefik:1.0
   imagePullSecret: docker-secret
 
